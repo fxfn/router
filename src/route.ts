@@ -8,7 +8,6 @@ export function route<
 >(
   this: unknown,
   opts: Omit<RouteOptions<RawServerDefault, RawRequestDefaultExpression<RawServerDefault>, RawReplyDefaultExpression<RawServerDefault>, RouteGeneric, ContextConfig, SchemaCompiler, ZodTypeProvider>, 'url' | 'method'> & {
-    method?: HTTPMethods | HTTPMethods[],
     auth?: boolean,
     scope?: string[]
     url?: string
@@ -60,9 +59,9 @@ export function createRegisterRoute(app: FastifyInstance) {
       method,
       ...opts,
       schema: {
-        tags: [tag],
+        tags: opts.schema?.tags ? opts.schema.tags : [tag],
         ...opts.schema
-      } as any,
+      } as SchemaCompiler
     })
   }
 }

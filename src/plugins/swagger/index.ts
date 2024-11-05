@@ -6,18 +6,23 @@ import { jsonSchemaTransform } from "fastify-type-provider-zod";
 
 async function plugin(app: FastifyInstance) {
   app.register(fastifySwagger, {
+    stripBasePath: true,
     swagger: {
       info: {
         title: 'blocks',
         version: 'v1',
       },
-      basePath: '/',
+      basePath: app.basePath,
     },
-    transform: jsonSchemaTransform
+    transform: jsonSchemaTransform,
   })
 
   app.register(fastifySwaggerUi, {
     routePrefix: '/swagger',
+    uiConfig: {
+      deepLinking: true,
+      showExtensions: true,
+    },
   })
 }
 

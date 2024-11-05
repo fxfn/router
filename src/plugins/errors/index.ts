@@ -18,6 +18,9 @@ declare module "fastify" {
 export async function errorHandler(fastify: FastifyInstance) {
 
   fastify.setErrorHandler(async function (error, request, reply) {
+
+    console.error(error)
+
     if (error.code === 'FST_ERR_RESPONSE_SERIALIZATION') {
       return reply.status(500).send(
         unexpected.parse({

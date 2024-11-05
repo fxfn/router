@@ -4,7 +4,7 @@ import { zodTypes } from "./plugins/zod"
 import { errors } from "./plugins/errors"
 import { swagger } from "./plugins/swagger"
 import { result } from "./plugins/result"
-import { fullRouteLogger } from "./plugins/print-routes"
+import { prettyPrint } from "./plugins/print-routes"
 
 export let app: FastifyInstance
 export type App = typeof app
@@ -42,7 +42,7 @@ export async function createApp(options?: CreateAppOptions, plugins?: RouterPlug
   if (options?.fileRouter) {
     app.register(fileRoutes, { ...options?.fileRouter })
   }
-  app.register(fullRouteLogger)
+  app.register(prettyPrint)
   
   for (let plugin of plugins || []) {
     app.register(plugin)
