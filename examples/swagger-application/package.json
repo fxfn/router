@@ -1,0 +1,10 @@
+{
+  "name": "@fxfn/swagger-application",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "node --import tsx ./index.ts"
+  },
+  "dependencies": {
+    "@fxfn/router": "workspace:*"
+  }
+}

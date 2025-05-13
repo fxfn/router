@@ -2,9 +2,9 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "#/github.com/fxfn/router": ["./src/index.ts"],
-      "#/github.com/fxfn/router/*": ["./src/*"],
+      "@/*": ["./packages/router/src/*"],
+      "#/github.com/fxfn/router": ["./packages/router/src/index.ts"],
+      "#/github.com/fxfn/router/*": ["./packages/router/src/*"],
     }
   }
 }
