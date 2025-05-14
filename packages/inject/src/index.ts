@@ -1,5 +1,0 @@
-export * from "./container"
-export * from "./decorators/inject"
-export * from "./decorators/inject-all"
-export * from "./decorators/injectable"
-export * from "./decorators/singleton"
