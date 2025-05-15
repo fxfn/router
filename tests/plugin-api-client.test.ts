@@ -3,14 +3,14 @@ import assert from "node:assert";
 import { createApp } from "../src";
 import z from "zod";
 import { badRequest, notFound, ok, unauthorized, unexpected } from "@/plugins/result";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 describe('api client plugin', () => {
   it('should generate api definiton', async () => {
     const app = await createApp({
       apiClient: {
         enabled: true,
-        outputPath: 'dist/api.d.ts'
+        outputPath: 'dist/simple-api.d.ts'
       }
     })
 
@@ -32,11 +32,7 @@ describe('api client plugin', () => {
             z.object({
               message: z.string()
             })
-          ),
-          404: notFound,
-          400: badRequest,
-          401: unauthorized,
-          500: unexpected
+          )
         }
       },
 
@@ -49,7 +45,124 @@ describe('api client plugin', () => {
     
     await app.ready()
     assert.ok(
-      existsSync('dist/api.d.ts')
+      existsSync('dist/simple-api.d.ts')
+    )
+
+    const content = readFileSync('dist/api.d.ts').toString()
+    assert.ok(content.includes('export type APISchema = {'))
+    assert.ok(content.includes('export type APISchema = {'))
+  })
+
+  it('should generate api definition for a complex schema', async () => {
+    const app = await createApp({
+      apiClient: {
+        enabled: true,
+        outputPath: 'dist/complex-api.d.ts'
+      }
+    })
+
+    app.route({
+      method: 'get',
+      url: '/users',
+      schema: {
+        querystring: z.object({
+          filter: z.string().nullish(),
+          max_result_ccount: z.number().nullish(),
+          skip_count: z.number().nullish(),
+          sorting: z.enum(['asc', 'desc']).nullish()
+        }),
+        response: {
+          200: ok(z.object({
+            items: z.array(
+              z.object({
+                id: z.uuid(),
+                name: z.string(),
+                email: z.email(),
+                active: z.boolean(),
+                last_login: z.iso.datetime(),
+                created_at: z.iso.datetime(),
+                foo: z.intersection(
+                  z.object({
+                    bar: z.string()
+                  }),
+                  z.object({
+                    baz: z.string()
+                  })
+                ),
+                bar: z.string().default('foo'),
+                settings: z.array(
+                  z.tuple([z.string(), z.string()])
+                ),
+                details: z.discriminatedUnion('role', [
+                  z.object({
+                    role: z.literal('admin'),
+                    permissions: z.literal(['create', 'read', 'update', 'delete'])
+                  }),
+                  z.object({
+                    role: z.literal('user'),
+                    permissions: z.literal(['read'])
+                  })
+                ])
+              })
+            ),
+            total: z.number()
+          })),
+          404: notFound,
+          400: badRequest,
+          401: unauthorized,
+          500: unexpected
+        }
+      },
+
+      async handler(req, reply) {
+        return reply.ok({
+          items: [{
+            id: crypto.randomUUID(),
+            name: 'John Doe',
+            email: 'john.doe@example.com',
+            active: true,
+            last_login: new Date(),
+            created_at: new Date(),
+            foo: {
+              bar: 'foo',
+              baz: 'foo'
+            },
+            settings: [
+              ['theme', 'light'],
+              ['language', 'en']
+            ],
+            details: {
+              role: 'admin',
+              permissions: ['create', 'read', 'update', 'delete']
+            }
+          }, {
+            id: crypto.randomUUID(),
+            name: 'Jane Doe',
+            email: 'jane.doe@example.com',
+            active: true,
+            last_login: new Date(),
+            created_at: new Date(),
+            foo: {
+              bar: 'foo',
+              baz: 'foo'
+            },
+            settings: [
+              ['theme', 'dark'],
+              ['language', 'fr']
+            ],
+            details: {
+              role: 'user',
+              permissions: ['read']
+            }
+          }],
+          total: 2
+        })
+      }
+    })
+
+    await app.ready()
+    assert.ok(
+      existsSync('dist/complex-api.d.ts')
     )
 
     const content = readFileSync('dist/api.d.ts').toString()

@@ -4,7 +4,9 @@ import { IRoute } from "@/interfaces/route"
 import { Constructor } from "@/interfaces/container"
 import { RouteDiscoveryStrategy } from "@/interfaces/route-discovery"
 
-export type RouteDiscoveryOptions = {} & any
+export type RouteDiscoveryOptions = {
+  discovery?: {}
+}
 
 declare module 'fastify' {
   interface FastifyInstance {

@@ -8,11 +8,6 @@ export function zodToTS(schema: z.ZodType, indent = 0): string {
 
   const {def, _zod} = schema;
   
-  console.log({
-    def,
-    _zod
-  })
-
   switch (def.type) {
     case 'string':
       return 'string';
@@ -44,8 +39,13 @@ export function zodToTS(schema: z.ZodType, indent = 0): string {
     case 'void':
       return 'void';
     
-    case 'array':
-      return `${zodToTS(schema, indent)}[]`;
+    case 'array': {
+      const value = (def as any).element;
+      if (value._def.typeName === 'ZodLiteral' && Array.isArray(value._def.values[0])) {
+        return `[${value._def.values[0].map((v: any) => typeof v === 'string' ? `'${v}'` : String(v)).join(', ')}]`;
+      }
+      return `${zodToTS(value, indent)}[]`;
+    }
     
     case 'object': {
       const entries = Object.entries((def as any).shape);
@@ -60,48 +60,48 @@ export function zodToTS(schema: z.ZodType, indent = 0): string {
       return `{\n${props.join(';\n')}${props.length ? ';' : ''}\n${getIndent(indent)}}`;
     }
     
-    // case 'enum':
-    //   return _zod.values.map((v: any) => `'${v}'`).join(' | ');
+    case 'enum':
+      return Object.values((def as any).entries).map((v: any) => `'${v}'`).join(' | ');
     
-    // case 'union':
-    //   return _zod.values.map((type: any) => zodToTS(type, indent)).join(' | ');
+    case 'union':
+      return (def as any).options.map((type: any) => zodToTS(type, indent)).join(' | ');
 
     // case 'ZodDiscriminatedUnion': {
     //   const options = Array.from(def.options.values());
     //   return options.map((option: any) => zodToTS(option, indent)).join(' | ');
     // }
     
-    // case 'intersection':
-    //   return `${zodToTS(def.left, indent)} & ${zodToTS(def.right, indent)}`;
+    case 'intersection':
+      return `${zodToTS((def as any).left, indent)} & ${zodToTS((def as any).right, indent)}`;
     
-    // case 'optional':
-    //   return `${zodToTS(def.innerType, indent)} | undefined`;
+    case 'optional':
+      return `${zodToTS((def as any).innerType, indent)} | undefined`;
     
     case 'nullable':
       return `${zodToTS((def as any).innerType, indent)} | null`;
     
-    // case 'tuple': {
-    //   const tupleItems = def.items.map((item: any) => zodToTS(item, indent));
-    //   return `[${tupleItems.join(', ')}]`;
-    // }
+    case 'tuple': {
+      const tupleItems = (def as any).items.map((item: any) => zodToTS(item, indent));
+      return `[${tupleItems.join(', ')}]`;
+    }
     
     case 'record':
       return `Record<${zodToTS((def as any).keyType, indent)}, ${zodToTS((def as any).valueType, indent)}>`;
     
-    // case 'map':
-    //   return `Map<${zodToTS(def.keyType, indent)}, ${zodToTS(def.valueType, indent)}>`;
+    case 'map':
+      return `Map<${zodToTS((def as any).keyType, indent)}, ${zodToTS((def as any).valueType, indent)}>`;
     
-    // case 'set':
-    //   return `Set<${zodToTS(def.valueType, indent)}>`;
+    case 'set':
+      return `Set<${zodToTS((def as any).valueType, indent)}>`;
     
     case 'literal':
       return typeof (def as any).values[0] === 'string' ? `'${(def as any).values[0]}'` : String((def as any).values[0]);
     
-    // case 'promise':
-    //   return `Promise<${zodToTS(def.type, indent)}>`;
+    case 'promise':
+      return `Promise<${zodToTS((def as any).type, indent)}>`;
     
-    // case 'default':
-    //   return zodToTS(def.innerType, indent);
+    case 'default':
+      return zodToTS((def as any).innerType, indent);
     
     default:
       throw new Error(`Unsupported Zod type: ${def.type}`);
