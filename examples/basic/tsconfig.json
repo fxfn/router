@@ -1,13 +1,18 @@
 {
   "compilerOptions": {
-    "lib": ["ES2023"],
+    "baseUrl": "src",
+    "target": "ES2022",
+    "lib": ["ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "strict": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "#/github.com/fxfn/router": ["../../src/index.ts"],
-      "#/github.com/fxfn/router/*": ["../../src/*"],
+      "@/*": ["./*"],
+      "@fxfn/router": ["../../src"]
     }
   },
-  "include": ["."],
-  "exclude": ["node_modules", "dist"]
+  "include": [".", "../dto",],
+  "exclude": ["dist", "build", "node_modules"]
 }

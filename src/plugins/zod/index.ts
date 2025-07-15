@@ -1,10 +1,15 @@
+import { FastifyInstance } from "fastify"
 import fp from "fastify-plugin"
-import { FastifyInstance } from "fastify";
-import { serializerCompiler, validatorCompiler } from "fastify-type-provider-zod"
+import { schemaCompilier, validatorCompiler } from "./lib/zod-schema-compiler"
 
-async function zodTypesPlugin(fastify: FastifyInstance) {
+async function plugin(fastify: FastifyInstance) {
+  fastify.setSerializerCompiler(schemaCompilier)
   fastify.setValidatorCompiler(validatorCompiler)
-  fastify.setSerializerCompiler(serializerCompiler)
 }
 
-export const zodTypes = fp(zodTypesPlugin, { fastify: ">=3.0.0" })
+export default fp(plugin, {
+  name: 'zod-types',
+  fastify: '>=5.0.0'
+})
+
+export { type ZodTypeProvider } from "./lib/zod-schema-compiler"

@@ -1,37 +1,65 @@
-import { FastifyInstance } from "fastify";
-import fp from "fastify-plugin";
-import { z } from "zod";
+import fp from "fastify-plugin"
+import { FastifyInstance } from "fastify"
+import { z } from "zod/v4"
+import { ok } from "./status/ok"
+import { unexpected, unexpectedError } from "./status/unexpected"
+import { notFound, notFoundError } from "./status/not-found"
+import { forbidden, forbiddenError } from "./status/forbidden"
+import { unauthorized, unauthorizedError } from "./status/unauthorized"
+import { badRequest, badRequestError } from "./status/bad-request"
+import { conflict, conflictError } from "./status/conflict"
+import { tooManyRequests, tooManyRequestsError } from "./status/too-many-requests"
 
-import { ok } from "./ok"
-import { notFound, notFoundError } from "./not-found"
-import { badRequest, badRequestError } from "./bad-request"; 
-import { unauthorized, unauthorizedError } from "./unauthorized";
-import { unexpectedError } from "./unexpected";
-
-declare module "fastify" {
-
+declare module 'fastify' {
   interface FastifyReply {
-    ok(result: object): FastifyReply
-    notFound(message?: string): FastifyReply
-    badRequest(message?: string): FastifyReply
-    unauthorized(message?: string): FastifyReply
-    unexpected(message?: string): FastifyReply
+    ok(data: unknown): FastifyReply
+    unexpected(message: string, details?: Record<string, string>): FastifyReply
+    notFound(message: string, details?: Record<string, string>): FastifyReply
+    badRequest(message: string, details?: Record<string, string>): FastifyReply
+    unauthorized(message: string, details?: Record<string, string>): FastifyReply
+    forbidden(message: string, details?: Record<string, string>): FastifyReply
+    conflict(message: string, details?: Record<string, string>): FastifyReply
+    tooManyRequests(message: string, details?: Record<string, string>): FastifyReply
   }
 }
 
-async function plugin(fastify: FastifyInstance) {
-
-  fastify.decorateReply('notFound', notFoundError)
-  fastify.decorateReply('badRequest', badRequestError)
-  fastify.decorateReply('unauthorized', unauthorizedError)
-  fastify.decorateReply('unexpected', unexpectedError)
-  fastify.decorateReply('ok', function(result: object) {
-    return this.send(ok(z.object({}).passthrough()).parse({
-      success: true,
-      error: null,
-      result
-    }))
-  })
+export type ResultOptions = {
+  result?: {} & any
 }
 
-export const result = fp(plugin)
+async function plugin(app: FastifyInstance, options: ResultOptions) {
+
+  app.decorateReply('ok', function(result: unknown) {
+    return this.status(200).send(
+      ok(z.object({}).loose().or(z.array(z.any()))).parse({
+        success: true,
+        error: null,
+        result
+      })
+    )
+  })
+  
+  app.decorateReply('unexpected', unexpectedError)
+  app.decorateReply('notFound', notFoundError)
+  app.decorateReply('badRequest', badRequestError)
+  app.decorateReply('unauthorized', unauthorizedError)
+  app.decorateReply('forbidden', forbiddenError)
+  app.decorateReply('conflict', conflictError)
+  app.decorateReply('tooManyRequests', tooManyRequestsError)
+}
+
+export default fp(plugin, {
+  name: 'result',
+  fastify: '>=5.0.0'
+})
+
+export { 
+  ok,
+  unexpected,
+  notFound,
+  badRequest,
+  unauthorized,
+  forbidden,
+  conflict,
+  tooManyRequests
+}

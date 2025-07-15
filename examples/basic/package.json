@@ -1,11 +1,11 @@
 {
   "name": "@fxfn/router-example-basic",
-  "version": "0.0.0",
-  "description": "",
+  "version": "1.0.0",
+  "private": true,
   "scripts": {
-    "start": "pnpm run dev"
+    "dev": "node --import tsx src/index.ts"
   },
   "dependencies": {
-    "fastify": "5.0.0"
+    "@fxfn/router": "file:../../src"
   }
 }

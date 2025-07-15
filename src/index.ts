@@ -1,54 +1,64 @@
-import fastify, { FastifyHttpOptions, FastifyInstance } from "fastify"
-import { fileRoutes, type FileRouteOptions } from "./plugins/file-routes"
-import { zodTypes } from "./plugins/zod"
-import { errors } from "./plugins/errors"
-import { swagger } from "./plugins/swagger"
-import { result } from "./plugins/result"
-import { prettyPrint } from "./plugins/print-routes"
+import fastify, { FastifyHttpOptions } from "fastify"
+import basePath, { BasePathOptions } from "./plugins/base-path"
+import container, { ContainerOptions } from "./plugins/container"
+import prettyRoutes from "./plugins/pretty-routes"
+import swagger, { SwaggerOptions } from "./plugins/swagger"
+import zod from "./plugins/zod"
+import routeDiscovery, { RouteDiscoveryOptions } from "./plugins/route-discovery"
+import result, { ResultOptions } from "./plugins/result"
+import apiClient, { APIClientOptions } from "./plugins/api-client"
+import { FileSystemRouteDiscoverySearchPatterns } from "./constants"
 
-export let app: FastifyInstance
-export type App = typeof app
+export type CreateAppOptions = FastifyHttpOptions<any, any>
+  & BasePathOptions
+  & SwaggerOptions
+  & ContainerOptions
+  & RouteDiscoveryOptions
+  & ResultOptions
+  & APIClientOptions
 
-type RouterPlugin = (fastify: FastifyInstance) => Promise<void>
-
-declare module "fastify" {
+declare module 'fastify' {
   interface FastifyInstance {
     basePath: string
     resolve: (url: string) => string
+    prepare: () => Promise<FastifyInstance<any, any, any, any>>
   }
 }
 
-type CreateAppOptions = FastifyHttpOptions<any, any> & {
-  fileRouter?: FileRouteOptions
-  basePath?: string
-}
-
-export async function createApp(options?: CreateAppOptions, plugins?: RouterPlugin[]) {
-  app = fastify({
+export async function createApp(options?: CreateAppOptions) {
+  const app = fastify({
     caseSensitive: false,
     exposeHeadRoutes: false,
     ...options
   })
 
-  app.decorate('basePath', options?.basePath || '/')
-  app.decorate('resolve', (url: string) => {
-    return [app.basePath, url.replace('/', '')].join('/').replace('//', '/')
-  })
+  const pluginOptions = options ?? {}
+  app.register(basePath, pluginOptions)
+  app.register(result, pluginOptions)
+  app.register(zod, pluginOptions)
+  app.register(apiClient, pluginOptions)
+  app.register(prettyRoutes, pluginOptions)
+  app.register(swagger, pluginOptions)
+  app.register(container, pluginOptions)
+  app.register(routeDiscovery, pluginOptions)
 
-  app.register(zodTypes)
-  app.register(errors)
-  app.register(result)
-  app.register(swagger)
-  if (options?.fileRouter) {
-    app.register(fileRoutes, { ...options?.fileRouter })
-  }
-  app.register(prettyPrint)
-  
-  for (let plugin of plugins || []) {
-    app.register(plugin)
+  app.prepare = async () => {
+    if (options && options.container) {
+      await app.discoverRoutes()
+      app.registerRoutes()
+    }
+
+    await app.ready()
+    return app
   }
 
   return app
 }
 
-export * from "./route"
+export type App = Awaited<ReturnType<typeof createApp>>
+export { IAppService } from "./interfaces/app-service"
+export { IRoute, type RouteRequest, type RouteReply } from "./interfaces/route"
+export { RouteDiscoveryStrategy } from "./interfaces/route-discovery"
+export { FileSystemRouteDiscoveryStrategy } from "./plugins/route-discovery/strategies/filesystem"
+export { APIClientOutputPath } from "./plugins/api-client"
+export { FileSystemRouteDiscoverySearchPatterns }
