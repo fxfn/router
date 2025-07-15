@@ -2,7 +2,7 @@ import { createApp } from "@/index"
 import { IRoute, RouteRequest } from "@/interfaces/route"
 import assert from "node:assert"
 import { describe, it } from "node:test"
-import z from "zod"
+import { z } from "zod/v4"
 import { TestContainer } from "../lib/container"
 
 describe('route discovery', () => {

@@ -1,0 +1,11 @@
+{
+  "name": "@fxfn/router-example-basic",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node --import tsx src/index.ts"
+  },
+  "dependencies": {
+    "@fxfn/router": "file:../../src"
+  }
+}

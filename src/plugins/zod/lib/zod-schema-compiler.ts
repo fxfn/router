@@ -1,7 +1,6 @@
 import { FastifySchemaCompiler, FastifyTypeProvider } from "fastify"
 import { FastifySerializerCompiler } from "fastify/types/schema"
-import { z } from "zod"
-import { InvalidSchemaError } from "../errors/invalid-schema-error"
+import { z } from "zod/v4"
 import { ResponseSerializationError } from "../errors/response-serialization-error"
 import { resolveSchema } from "./resolve-schema"
 
@@ -32,6 +31,16 @@ export const schemaCompilier = createSerializerCompiler({})
 export const ZodFastifySchemaValidationErrorSymbol = Symbol.for('ZodFastifySchemaValidationError')
 
 export const validatorCompiler: FastifySchemaCompiler<z.ZodType> = ({ schema }) => data => {
+
+  // fix dates in schema
+  for (const key in (schema as any).shape) {
+    // @ts-ignore
+    if (schema.shape[key].def.type === 'date') {
+      // @ts-ignore
+      schema.shape[key] = z.string().or(z.date()).or(z.iso.datetime()).transform((date) => date ? new Date(date) : null)
+    }
+  }
+
   const result = schema.safeParse(data)
   if (result.error) {
 

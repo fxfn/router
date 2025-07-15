@@ -1,0 +1,22 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@fxfn/router':
+        specifier: file:../../src
+        version: src@file:../../src
+
+packages:
+
+  src@file:../../src:
+    resolution: {directory: ../../src, type: directory}
+
+snapshots:
+
+  src@file:../../src: {}

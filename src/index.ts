@@ -1,6 +1,4 @@
-import fastify, { FastifyHttpOptions, FastifyInstance } from "fastify"
-import { IncomingMessage, ServerResponse } from "node:http"
-import { Http2ServerRequest, Http2ServerResponse } from "node:http2"
+import fastify, { FastifyHttpOptions } from "fastify"
 import basePath, { BasePathOptions } from "./plugins/base-path"
 import container, { ContainerOptions } from "./plugins/container"
 import prettyRoutes from "./plugins/pretty-routes"
@@ -9,12 +7,7 @@ import zod from "./plugins/zod"
 import routeDiscovery, { RouteDiscoveryOptions } from "./plugins/route-discovery"
 import result, { ResultOptions } from "./plugins/result"
 import apiClient, { APIClientOptions } from "./plugins/api-client"
-
-export type App = FastifyInstance<
-  any,
-  IncomingMessage | Http2ServerRequest,
-  ServerResponse | Http2ServerResponse
->
+import { FileSystemRouteDiscoverySearchPatterns } from "./constants"
 
 export type CreateAppOptions = FastifyHttpOptions<any, any>
   & BasePathOptions
@@ -39,14 +32,15 @@ export async function createApp(options?: CreateAppOptions) {
     ...options
   })
 
-  app.register(basePath, options)
-  app.register(result, options)
-  app.register(zod)
-  app.register(apiClient, options)
-  app.register(prettyRoutes)
-  app.register(swagger, options)
-  app.register(container, options)
-  app.register(routeDiscovery, options)
+  const pluginOptions = options ?? {}
+  app.register(basePath, pluginOptions)
+  app.register(result, pluginOptions)
+  app.register(zod, pluginOptions)
+  app.register(apiClient, pluginOptions)
+  app.register(prettyRoutes, pluginOptions)
+  app.register(swagger, pluginOptions)
+  app.register(container, pluginOptions)
+  app.register(routeDiscovery, pluginOptions)
 
   app.prepare = async () => {
     if (options && options.container) {
@@ -61,6 +55,10 @@ export async function createApp(options?: CreateAppOptions) {
   return app
 }
 
-export { IRoute } from "./interfaces/route"
+export type App = Awaited<ReturnType<typeof createApp>>
+export { IAppService } from "./interfaces/app-service"
+export { IRoute, type RouteRequest, type RouteReply } from "./interfaces/route"
 export { RouteDiscoveryStrategy } from "./interfaces/route-discovery"
-export { FileSystemRouteDiscoveryStrategy, FileSystemRouteDiscoverySearchPatterns } from "./plugins/route-discovery/strategies/filesystem"
+export { FileSystemRouteDiscoveryStrategy } from "./plugins/route-discovery/strategies/filesystem"
+export { APIClientOutputPath } from "./plugins/api-client"
+export { FileSystemRouteDiscoverySearchPatterns }

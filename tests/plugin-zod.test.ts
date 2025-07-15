@@ -1,7 +1,7 @@
 
 import assert from "node:assert"
 import { describe, it } from "node:test"
-import z from "zod"
+import { z } from "zod/v4"
 import { App, createApp } from "../src"
 import { ZodTypeProvider } from "../src/plugins/zod"
 
@@ -71,11 +71,11 @@ describe('zod type provider', async () => {
   it('should generate a swagger schema', async () => {
 
     const res = await app.inject({
-      url: '/json'
+      url: '/swagger/json'
     })
 
     assert.ok(
-      res.body.includes(`{"${url}":{"get":{"tags":["hello"],"parameters":[{"type":"string","minLength":2,"required":true,"in":"query","name":"name"},{"type":"number","minimum":18,"required":true,"in":"query","name":"year"}]`),
+      res.body.includes(`{"swagger":"2.0","info":{"title":"Router Application","version":"1.0.0"},"definitions":{},"paths":{"/plugin-zod-test":{"get":{"tags":["hello"],"parameters":[{"type":"string","minLength":2,"required":true,"in":"query","name":"name"},{"type":"number","minimum":18,"required":true,"in":"query","name":"year"}],"responses":{"200":{"description":"Default Response","schema":{"type":"object","properties":{"message":{"type":"string"}},"required":["message"],"additionalProperties":false}}}}}}}`),
       `Should include the definition for the ${url} route`
     )
   })

@@ -1,5 +1,5 @@
 import { FastifySchema } from "fastify"
-import { z } from "zod"
+import { z } from "zod/v4"
 import { resolveSchema } from "./resolve-schema"
 
 type FreeformRecord = Record<string, any>
@@ -14,7 +14,7 @@ export const createJsonSchemaTransform = ({ skipList }: { skipList: readonly str
       }
     }
 
-    const { response, headers, querystring, body, params, hide, ...rest } = schema
+    const { response, headers, querystring, body, params, hide, ...rest } = schema as any
     const transformed: FreeformRecord = {}
     if (skipList.includes(url) || hide) {
       transformed.hide = true
@@ -25,7 +25,16 @@ export const createJsonSchemaTransform = ({ skipList }: { skipList: readonly str
     for (const prop in zodSchemas) {
       const zodSchema = zodSchemas[prop]
       if (zodSchema) {
-        transformed[prop] = z.toJSONSchema(zodSchema)
+        transformed[prop] = z.toJSONSchema(zodSchema, {
+          unrepresentable: 'any',
+          override: (ctx) => {
+            const def = ctx.zodSchema._zod.def
+            if (def.type === 'date') {
+              ctx.jsonSchema.type = 'string'
+              ctx.jsonSchema.format = 'date-time'
+            }
+          }
+        })
       }
     }
 
@@ -34,7 +43,20 @@ export const createJsonSchemaTransform = ({ skipList }: { skipList: readonly str
 
       for (const prop in response as any) {
         const schema = resolveSchema((response as any)[prop])
-        const transformedResponse = z.toJSONSchema(schema)
+        const transformedResponse = z.toJSONSchema(schema, {
+          unrepresentable: 'any',
+          override: (ctx) => {
+            const def = ctx.zodSchema._zod.def
+            if (def.type === 'date') {
+              ctx.jsonSchema.type = 'string'
+              ctx.jsonSchema.format = 'date-time'
+            }
+            if (def.type === 'null') {
+              ctx.jsonSchema.type = 'string'
+              ctx.jsonSchema.default = null
+            }
+          }
+        })
         transformed.response[prop] = transformedResponse
       }
     }

@@ -1,8 +1,8 @@
 import fp from "fastify-plugin"
 import { FastifyInstance } from "fastify"
-import { IRoute } from "@/interfaces/route"
-import { Constructor } from "@/interfaces/container"
-import { RouteDiscoveryStrategy } from "@/interfaces/route-discovery"
+import { IRoute } from "../../interfaces/route"
+import { Constructor } from "../../interfaces/container"
+import { RouteDiscoveryStrategy } from "../../interfaces/route-discovery"
 
 export type RouteDiscoveryOptions = {
   discovery?: {}
@@ -35,9 +35,11 @@ async function plugin(app: FastifyInstance, options: RouteDiscoveryOptions) {
       for (const url of urls) {
         app.route({
           method: route.method,
-          url,
-          schema: route.schema,
-          handler: route.handler.bind(app)
+          url: url.startsWith(app.basePath) ? url : `${app.basePath}${url}`.replace('//', '/'),
+          schema: {
+            ...route.schema,
+          },
+          handler: route.handler.bind(route)
         })
       }
     }

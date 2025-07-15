@@ -1,6 +1,7 @@
 import { createApp } from "@/index"
 import { RouteDiscoveryStrategy } from "@/interfaces/route-discovery"
-import { FileSystemRouteDiscoverySearchPatterns, FileSystemRouteDiscoveryStrategy } from "@/plugins/route-discovery/strategies/filesystem"
+import { FileSystemRouteDiscoveryStrategy } from "@/plugins/route-discovery/strategies/filesystem"
+import { FileSystemRouteDiscoverySearchPatterns } from "@/constants"
 import assert from "node:assert"
 import { describe, it } from "node:test"
 import { TestContainer } from "../lib/container"

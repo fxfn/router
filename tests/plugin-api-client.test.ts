@@ -1,16 +1,16 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
 import { createApp } from "../src";
-import z from "zod";
+import { z } from "zod/v4";
 import { badRequest, notFound, ok, unauthorized, unexpected } from "@/plugins/result";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, unlinkSync } from "node:fs";
 
 describe('api client plugin', () => {
   it('should generate api definiton', async () => {
     const app = await createApp({
       apiClient: {
         enabled: true,
-        outputPath: 'dist/simple-api.d.ts'
+        outputPath: 'simple-api.d.ts'
       }
     })
 
@@ -44,20 +44,18 @@ describe('api client plugin', () => {
     })
     
     await app.ready()
-    assert.ok(
-      existsSync('dist/simple-api.d.ts')
-    )
 
-    const content = readFileSync('dist/api.d.ts').toString()
+    const content = readFileSync('simple-api.d.ts').toString()
     assert.ok(content.includes('export type APISchema = {'))
     assert.ok(content.includes('export type APISchema = {'))
+    unlinkSync('simple-api.d.ts')
   })
 
   it('should generate api definition for a complex schema', async () => {
     const app = await createApp({
       apiClient: {
         enabled: true,
-        outputPath: 'dist/complex-api.d.ts'
+        outputPath: 'complex-api.d.ts'
       }
     })
 
@@ -162,11 +160,12 @@ describe('api client plugin', () => {
 
     await app.ready()
     assert.ok(
-      existsSync('dist/complex-api.d.ts')
+      existsSync('complex-api.d.ts')
     )
 
-    const content = readFileSync('dist/api.d.ts').toString()
+    const content = readFileSync('complex-api.d.ts').toString()
     assert.ok(content.includes('export type APISchema = {'))
     assert.ok(content.includes('export type APISchema = {'))
+    unlinkSync('complex-api.d.ts')
   })
 })

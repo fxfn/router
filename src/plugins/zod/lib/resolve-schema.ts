@@ -1,4 +1,4 @@
-import z from "zod"
+import z from "zod/v4"
 import { InvalidSchemaError } from "../errors/invalid-schema-error"
 
 export function resolveSchema(maybeSchema: z.ZodType | { properties: z.ZodType }): z.ZodType {

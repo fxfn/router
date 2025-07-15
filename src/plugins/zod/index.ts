@@ -12,4 +12,4 @@ export default fp(plugin, {
   fastify: '>=5.0.0'
 })
 
-export { ZodTypeProvider } from "./lib/zod-schema-compiler"
+export { type ZodTypeProvider } from "./lib/zod-schema-compiler"

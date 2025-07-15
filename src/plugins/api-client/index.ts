@@ -1,8 +1,10 @@
 import { FastifyInstance, RouteOptions } from "fastify";
 import fp from "fastify-plugin";
-import fs from "node:fs";
+import * as fs from "node:fs";
 import { dirname } from "node:path";
 import { generateApiSchema } from "./lib/generate-api-schema";
+
+export const APIClientOutputPath = Symbol('APIClientOutputPath')
 
 export type APIClientOptions = {
   apiClient?: {

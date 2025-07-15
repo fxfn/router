@@ -1,6 +1,9 @@
 import fp from "fastify-plugin"
 import { FastifyInstance } from "fastify"
-import { AbstractConstructor, Constructor, Container, Lifecycle, NoConatinerError, Provider } from "@/interfaces/container.js"
+import { 
+  AbstractConstructor, Constructor, Container, 
+  Lifecycle, NoConatinerError, Provider 
+} from "../../interfaces/container.js"
 
 export type ContainerOptions = {
   container?: Container

@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "target": "ES2022",
+    "lib": ["ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "@/*": ["./*"],
+      "@fxfn/router": ["../../src"]
+    }
+  },
+  "include": [".", "../dto",],
+  "exclude": ["dist", "build", "node_modules"]
+}

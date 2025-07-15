@@ -23,7 +23,7 @@ async function plugin(fastify: FastifyInstance, options: SwaggerOptions) {
   })
 
   fastify.register(fastifySwaggerUi, {
-    routePrefix: fastify.basePath,
+    routePrefix: fastify.basePath === '/' ? '/swagger' : `${fastify.basePath}/swagger`,
     logo: {
       content: '',
       type: 'image/svg+xml'

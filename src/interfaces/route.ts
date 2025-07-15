@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest, HTTPMethods } from "fastify"
-import { z, ZodType } from "zod"
+import { z, ZodType } from "zod/v4"
 
 type RouteHandler = (req: RouteRequest, reply: RouteReply) => Promise<boolean>
 

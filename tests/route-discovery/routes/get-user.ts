@@ -1,5 +1,5 @@
 import { IRoute, RouteRequest } from "@/interfaces/route"
-import z from "zod"
+import z from "zod/v4"
 
 export class GetUserRoute implements IRoute {
   method = 'get'

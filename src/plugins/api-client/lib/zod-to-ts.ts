@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 import { getIndent } from "./get-indent";
 
 export function zodToTS(schema: z.ZodType, indent = 0): string {

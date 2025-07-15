@@ -1,6 +1,6 @@
 import fp from "fastify-plugin"
 import { FastifyInstance } from "fastify"
-import { z } from "zod"
+import { z } from "zod/v4"
 import { ok } from "./status/ok"
 import { unexpected, unexpectedError } from "./status/unexpected"
 import { notFound, notFoundError } from "./status/not-found"
@@ -8,7 +8,7 @@ import { forbidden, forbiddenError } from "./status/forbidden"
 import { unauthorized, unauthorizedError } from "./status/unauthorized"
 import { badRequest, badRequestError } from "./status/bad-request"
 import { conflict, conflictError } from "./status/conflict"
-import { tooManyRequests, tooManyRequestsError } from "./status/bad-request copy"
+import { tooManyRequests, tooManyRequestsError } from "./status/too-many-requests"
 
 declare module 'fastify' {
   interface FastifyReply {
