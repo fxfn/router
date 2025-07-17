@@ -33,9 +33,20 @@ async function plugin(app: FastifyInstance, options: RouteDiscoveryOptions) {
     for (const route of routes) {
       const urls = Array.isArray(route.url) ? route.url : [route.url]
       for (const url of urls) {
+
+        let endpoint = url
+        if (route.basePath) {
+          endpoint = `${route.basePath}/${url}`
+        }
+        else {
+          endpoint = `${app.basePath}/${url}`
+        }
+
+        console.log(endpoint)
+
         app.route({
           method: route.method,
-          url: url.startsWith(app.basePath) ? url : `${app.basePath}${url}`.replace('//', '/'),
+          url: endpoint.replace('///', '/').replace('//', '/'),
           schema: {
             ...route.schema,
           },

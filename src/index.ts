@@ -7,7 +7,6 @@ import zod from "./plugins/zod"
 import routeDiscovery, { RouteDiscoveryOptions } from "./plugins/route-discovery"
 import result, { ResultOptions } from "./plugins/result"
 import apiClient, { APIClientOptions } from "./plugins/api-client"
-import { FileSystemRouteDiscoverySearchPatterns } from "./constants"
 
 export type CreateAppOptions = FastifyHttpOptions<any, any>
   & BasePathOptions
@@ -59,6 +58,5 @@ export type App = Awaited<ReturnType<typeof createApp>>
 export { IAppService } from "./interfaces/app-service"
 export { IRoute, type RouteRequest, type RouteReply } from "./interfaces/route"
 export { RouteDiscoveryStrategy } from "./interfaces/route-discovery"
+export * from "./constants"
 export { FileSystemRouteDiscoveryStrategy } from "./plugins/route-discovery/strategies/filesystem"
-export { APIClientOutputPath } from "./plugins/api-client"
-export { FileSystemRouteDiscoverySearchPatterns }

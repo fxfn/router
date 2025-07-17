@@ -3,7 +3,7 @@ import { glob } from "node:fs/promises"
 import { RouteDiscoveryStrategy } from "../../../interfaces/route-discovery"
 import { type App } from "../../../index"
 import { resolve } from "node:path"
-import { FileSystemRouteDiscoverySearchPatterns } from "../../../constants"
+import { RouterFileSystemRouteDiscoverySearchPatterns } from "../../../constants"
 
 /**
  * This strategy will discover routes and register them in the container.
@@ -27,7 +27,7 @@ export class FileSystemRouteDiscoveryStrategy extends RouteDiscoveryStrategy {
 
     let searchPatterns = defaultSearchPatterns
     try {
-      searchPatterns = app.container.resolve(FileSystemRouteDiscoverySearchPatterns)
+      searchPatterns = app.container.resolve(RouterFileSystemRouteDiscoverySearchPatterns)
     }
     catch {
       // no search patterns registered, use the default

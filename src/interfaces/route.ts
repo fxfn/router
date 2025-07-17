@@ -40,6 +40,7 @@ export type RouteVerifiers =
 export abstract class IRoute {
   abstract url: string | string[]
   abstract method: HTTPMethods | HTTPMethods[]
+  abstract basePath?: string
   abstract schema: RouteSchema
   abstract verifiers?: RouteVerifiers
   abstract handler(

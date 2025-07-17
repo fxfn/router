@@ -4,8 +4,6 @@ import * as fs from "node:fs";
 import { dirname } from "node:path";
 import { generateApiSchema } from "./lib/generate-api-schema";
 
-export const APIClientOutputPath = Symbol('APIClientOutputPath')
-
 export type APIClientOptions = {
   apiClient?: {
     enabled?: boolean
