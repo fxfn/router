@@ -42,8 +42,6 @@ async function plugin(app: FastifyInstance, options: RouteDiscoveryOptions) {
           endpoint = `${app.basePath}/${url}`
         }
 
-        console.log(endpoint)
-
         app.route({
           method: route.method,
           url: endpoint.replace('///', '/').replace('//', '/'),
