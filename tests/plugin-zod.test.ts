@@ -1,6 +1,5 @@
 
-import assert from "node:assert"
-import { describe, it } from "node:test"
+import { describe, it, expect } from "vitest"
 import { z } from "zod/v4"
 import { App, createApp } from "../src"
 import { ZodTypeProvider } from "../src/plugins/zod"
@@ -13,31 +12,28 @@ describe('zod type provider', async () => {
   it('should not throw an error when registering a route', async () => {
     app = await createApp()
     
-    assert.doesNotThrow(
-      async () => {
-        app.withTypeProvider<ZodTypeProvider>().route({
-          method: 'get',
-          url,
-          schema: {
-            tags: ['hello'],
-            querystring: z.object({
-              name: z.string().min(2),
-              year: z.coerce.number().min(18)
-            }),
-            response: {
-              200: z.object({
-                message: z.string()
-              })
-            }
-          },
-          handler: async (req, reply) => {
-            // @ts-expect-error
-            reply.send({ foo: `hi ${req.query.name}` })
+    expect(async () => {
+      app.withTypeProvider<ZodTypeProvider>().route({
+        method: 'get',
+        url,
+        schema: {
+          tags: ['hello'],
+          querystring: z.object({
+            name: z.string().min(2),
+            year: z.coerce.number().min(18)
+          }),
+          response: {
+            200: z.object({
+              message: z.string()
+            })
           }
-        })
-      },
-      'should not throw an error when registering a route'
-    )
+        },
+        handler: async (req, reply) => {
+          // @ts-expect-error
+          reply.send({ foo: `hi ${req.query.name}` })
+        }
+      })
+    }).not.toThrow()
 
     await app.prepare()
   })
@@ -51,7 +47,7 @@ describe('zod type provider', async () => {
       }
     })
 
-    assert.ok(res.statusCode === 400, "Should return a status code of 400")
+    expect(res.statusCode).toBe(400)
   })
 
   it('should validate the response types correctly', async () => {
@@ -64,8 +60,8 @@ describe('zod type provider', async () => {
       }
     })
 
-    assert.ok(JSON.parse(res.body).code === 'FST_ERR_RESPONSE_SERIALIZATION', "Should return a status code of 500")
-    assert.ok(res.statusCode === 500, "Should return a status code of 500")
+    expect(JSON.parse(res.body).code).toBe('FST_ERR_RESPONSE_SERIALIZATION')
+    expect(res.statusCode).toBe(500)
   })
 
   it('should generate a swagger schema', async () => {
@@ -74,9 +70,6 @@ describe('zod type provider', async () => {
       url: '/swagger/json'
     })
 
-    assert.ok(
-      res.body.includes(`{"swagger":"2.0","info":{"title":"Router Application","version":"1.0.0"},"definitions":{},"paths":{"/plugin-zod-test":{"get":{"tags":["hello"],"parameters":[{"type":"string","minLength":2,"required":true,"in":"query","name":"name"},{"type":"number","minimum":18,"required":true,"in":"query","name":"year"}],"responses":{"200":{"description":"Default Response","schema":{"type":"object","properties":{"message":{"type":"string"}},"required":["message"],"additionalProperties":false}}}}}}}`),
-      `Should include the definition for the ${url} route`
-    )
+    expect(res.body).toContain(`{"swagger":"2.0","info":{"title":"Router Application","version":"1.0.0"},"definitions":{},"paths":{"/plugin-zod-test":{"get":{"tags":["hello"],"parameters":[{"type":"string","minLength":2,"required":true,"in":"query","name":"name"},{"type":"number","minimum":18,"required":true,"in":"query","name":"year"}],"responses":{"200":{"description":"Default Response","schema":{"type":"object","properties":{"message":{"type":"string"}},"required":["message"],"additionalProperties":false}}}}}}}`)
   })
 })

@@ -1,7 +1,6 @@
-import { createApp } from "@/index"
-import { IRoute, RouteRequest } from "@/interfaces/route"
-import assert from "node:assert"
-import { describe, it } from "node:test"
+import { createApp } from "../../src/index"
+import { IRoute, RouteRequest } from "../../src/interfaces/route"
+import { describe, it, expect } from "vitest"
 import { z } from "zod/v4"
 import { TestContainer } from "../lib/container"
 
@@ -46,7 +45,7 @@ describe('route discovery', () => {
       url: '/users'
     })
     
-    assert.ok(res.statusCode === 200, `/users container route was not registered, status code should be 200 was ${res.statusCode}`)
+    expect(res.statusCode).toBe(200)
   })
 })
 

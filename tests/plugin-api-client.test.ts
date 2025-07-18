@@ -1,8 +1,7 @@
-import { describe, it } from "node:test";
-import assert from "node:assert";
+import { describe, it, expect } from "vitest";
 import { createApp } from "../src";
 import { z } from "zod/v4";
-import { badRequest, notFound, ok, unauthorized, unexpected } from "@/plugins/result";
+import { badRequest, notFound, ok, unauthorized, unexpected } from "../src/plugins/result";
 import { existsSync, readFileSync, unlinkSync } from "node:fs";
 
 describe('api client plugin', () => {
@@ -46,8 +45,8 @@ describe('api client plugin', () => {
     await app.ready()
 
     const content = readFileSync('simple-api.d.ts').toString()
-    assert.ok(content.includes('export type APISchema = {'))
-    assert.ok(content.includes('export type APISchema = {'))
+    expect(content).toContain('export type APISchema = {')
+    expect(content).toContain('export type APISchema = {')
     unlinkSync('simple-api.d.ts')
   })
 
@@ -159,13 +158,11 @@ describe('api client plugin', () => {
     })
 
     await app.ready()
-    assert.ok(
-      existsSync('complex-api.d.ts')
-    )
+    expect(existsSync('complex-api.d.ts')).toBe(true)
 
     const content = readFileSync('complex-api.d.ts').toString()
-    assert.ok(content.includes('export type APISchema = {'))
-    assert.ok(content.includes('export type APISchema = {'))
+    expect(content).toContain('export type APISchema = {')
+    expect(content).toContain('export type APISchema = {')
     unlinkSync('complex-api.d.ts')
   })
 })

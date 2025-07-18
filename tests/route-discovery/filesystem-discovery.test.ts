@@ -1,9 +1,8 @@
-import { createApp } from "@/index"
-import { RouteDiscoveryStrategy } from "@/interfaces/route-discovery"
-import { FileSystemRouteDiscoveryStrategy } from "@/plugins/route-discovery/strategies/filesystem"
-import { FileSystemRouteDiscoverySearchPatterns } from "@/constants"
-import assert from "node:assert"
-import { describe, it } from "node:test"
+import { createApp } from "../../src/index"
+import { RouteDiscoveryStrategy } from "../../src/interfaces/route-discovery"
+import { FileSystemRouteDiscoveryStrategy } from "../../src/plugins/route-discovery/strategies/filesystem"
+import { RouterFileSystemRouteDiscoverySearchPatterns } from "../../src/constants"
+import { describe, it, expect } from "vitest"
 import { TestContainer } from "../lib/container"
 
 describe('route discovery - filesystem', () => {
@@ -13,9 +12,9 @@ describe('route discovery - filesystem', () => {
       container: new TestContainer()
     })
 
-    app.container.register(FileSystemRouteDiscoverySearchPatterns, { 
+    app.container.register(RouterFileSystemRouteDiscoverySearchPatterns, { 
       useValue: [
-        './tests/route-discovery/routes/*.ts',
+        './packages/router/tests/route-discovery/routes/*.ts',
       ]
     })
     app.container.register(RouteDiscoveryStrategy, { useClass: FileSystemRouteDiscoveryStrategy })
@@ -26,7 +25,7 @@ describe('route discovery - filesystem', () => {
       url: '/users/abc-123'
     })
 
-    assert.ok(res.statusCode === 200, `/users/abc-123 filesystem route was not registered, status code should be 200 was ${res.statusCode}`)
+    expect(res.statusCode).toBe(200)
   })
 })
 
