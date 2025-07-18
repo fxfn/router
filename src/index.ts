@@ -7,6 +7,7 @@ import zod from "./plugins/zod"
 import routeDiscovery, { RouteDiscoveryOptions } from "./plugins/route-discovery"
 import result, { ResultOptions } from "./plugins/result"
 import apiClient, { APIClientOptions } from "./plugins/api-client"
+import urlContentType from "./plugins/url-content-type"
 
 export type CreateAppOptions = FastifyHttpOptions<any, any>
   & BasePathOptions
@@ -32,6 +33,7 @@ export async function createApp(options?: CreateAppOptions) {
   })
 
   const pluginOptions = options ?? {}
+  app.register(urlContentType, pluginOptions)
   app.register(basePath, pluginOptions)
   app.register(result, pluginOptions)
   app.register(zod, pluginOptions)
