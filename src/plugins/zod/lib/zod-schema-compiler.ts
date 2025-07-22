@@ -35,7 +35,12 @@ export const validatorCompiler: FastifySchemaCompiler<z.ZodType> = ({ schema }) 
   // fix dates in schema
   for (const key in (schema as any).shape) {
     // @ts-ignore
-    if (schema.shape[key].def.type === 'date') {
+    const field = schema.shape[key]
+    // Check if it's a date field (either direct date or optional date)
+    const isDateField = field.def.type === 'date' || 
+                       (field.def.type === 'optional' && field.def.innerType.def.type === 'date')
+    
+    if (isDateField) {
       // @ts-ignore
       schema.shape[key] = z.string().or(z.date()).or(z.iso.datetime()).transform((date) => date ? new Date(date) : null)
     }
