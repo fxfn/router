@@ -32,22 +32,62 @@ export const ZodFastifySchemaValidationErrorSymbol = Symbol.for('ZodFastifySchem
 
 export const validatorCompiler: FastifySchemaCompiler<z.ZodType> = ({ schema }) => data => {
 
-  // fix dates in schema
-  for (const key in (schema as any).shape) {
-    // @ts-ignore
-    const field = schema.shape[key]
-    // Check if it's a date field (either direct date or optional date)
-    const isDateField = field.def.type === 'date' || 
-                       (field.def.type === 'optional' && field.def.innerType.def.type === 'date')
-    
-    if (isDateField) {
-      // @ts-ignore
-      schema.shape[key] = z.string()
-        .or(z.date())
-        .or(z.iso.datetime())
-        .transform((date) => date ? new Date(date) : null)
+  // Helper function to check if a field is ultimately a date type
+  const isDateType = (zodField: any): boolean => {
+    if (zodField.def.type === 'date') {
+      return true
+    }
+    if (zodField.def.type === 'optional' || zodField.def.type === 'nullish' || zodField.def.type === 'nullable') {
+      return isDateType(zodField.def.innerType)
+    }
+    return false
+  }
+
+  // Helper function to transform date fields recursively
+  const transformDateFields = (schemaObj: any) => {
+    if (!schemaObj.shape) return
+
+    for (const key in schemaObj.shape) {
+      const field = schemaObj.shape[key]
+      
+      // Handle array types
+      if (field.def.type === 'array') {
+        transformDateFields(field.def.element)
+        continue
+      }
+      
+      // Handle object types (nested objects)
+      if (field.def.type === 'object') {
+        transformDateFields(field)
+        continue
+      }
+      
+      // Check if it's a date field (direct date or wrapped in optional/nullish/nullable)
+      const isDateField = isDateType(field)
+      
+      if (isDateField) {
+        // Create a new schema that accepts strings and transforms them to dates
+        const dateSchema = z.string()
+          .or(z.date())
+          .or(z.iso.datetime())
+          .transform((date) => date ? new Date(date) : null)
+        
+        // Preserve the original wrapper (optional/nullish/nullable)
+        if (field.def.type === 'optional') {
+          schemaObj.shape[key] = dateSchema.optional()
+        } else if (field.def.type === 'nullish') {
+          schemaObj.shape[key] = dateSchema.nullish()
+        } else if (field.def.type === 'nullable') {
+          schemaObj.shape[key] = dateSchema.nullable()
+        } else {
+          schemaObj.shape[key] = dateSchema
+        }
+      }
     }
   }
+
+  // Transform date fields in the schema
+  transformDateFields(schema)
 
   const result = schema.safeParse(data)
   if (result.error) {
