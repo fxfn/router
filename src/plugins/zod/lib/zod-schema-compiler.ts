@@ -42,7 +42,10 @@ export const validatorCompiler: FastifySchemaCompiler<z.ZodType> = ({ schema }) 
     
     if (isDateField) {
       // @ts-ignore
-      schema.shape[key] = z.string().or(z.date()).or(z.iso.datetime()).transform((date) => date ? new Date(date) : null)
+      schema.shape[key] = z.string()
+        .or(z.date())
+        .or(z.iso.datetime())
+        .transform((date) => date ? new Date(date) : null)
     }
   }
 
