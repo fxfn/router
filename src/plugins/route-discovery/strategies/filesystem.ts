@@ -1,9 +1,9 @@
 import { IRoute } from "../../../interfaces/route"
 import { glob } from "node:fs/promises"
 import { RouteDiscoveryStrategy } from "../../../interfaces/route-discovery"
-import { type App } from "../../../index"
 import { resolve } from "node:path"
 import { RouterFileSystemRouteDiscoverySearchPatterns } from "../../../constants"
+import { FastifyInstance } from "fastify"
 
 /**
  * This strategy will discover routes and register them in the container.
@@ -15,7 +15,7 @@ import { RouterFileSystemRouteDiscoverySearchPatterns } from "../../../constants
  * see `tests/route-discovery/filesystem-discovery.test.ts` for an example.
  */
 export class FileSystemRouteDiscoveryStrategy extends RouteDiscoveryStrategy {
-  async discover(app: App) {
+  async discover(app: FastifyInstance) {
     const routes: IRoute[] = []
 
     const defaultSearchPatterns = [

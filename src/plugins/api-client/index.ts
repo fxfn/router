@@ -28,13 +28,26 @@ async function plugin(fastify: FastifyInstance, options: APIClientOptions) {
       return
     }
 
+    if (!opts.apiClient) {
+      return
+    }
+
     if (opts.apiClient.enabled) {
       routes.push(route)
     }
   })
 
   fastify.addHook('onReady', async () => {
+    if (!opts.apiClient) {
+      return
+    }
+
     if (!opts.apiClient.enabled) {
+      return
+    }
+
+    if (!opts.apiClient.outputPath) {
+      console.warn('No output path provided for API client')
       return
     }
 

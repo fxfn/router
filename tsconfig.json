@@ -1,5 +1,10 @@
 {
   "compilerOptions": {
     "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "src"
   }
 }
